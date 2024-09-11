@@ -13,7 +13,10 @@ const errorHandler = props => (
         onAcceptModal={props.onHandle}
         acceptEnabled
       >
-        <p>{props.error.message}</p>
+        {
+          console.log("props.error::::::::::::::::"+ props.error)
+        }
+         <p>{props.error.message || 'An unknown error occurred.'}</p>
       </Modal>
     )}
   </Fragment>

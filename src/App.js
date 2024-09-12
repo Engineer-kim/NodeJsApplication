@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate} from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
 import Backdrop from './components/Backdrop/Backdrop';
@@ -17,7 +17,7 @@ class App extends Component {
   state = {
     showBackdrop: false,
     showMobileNav: false,
-    isAuth: true,
+    isAuth: false,
     token: null,
     userId: null,
     authLoading: false,
@@ -58,7 +58,16 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('URL')
+    fetch('http://localhost:8080/feed/login', {
+        method: 'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+          email: authData.email,
+          password: authData.password
+        })
+    })
       .then(res => {
         if (res.status === 422) {
           throw new Error('Validation failed.');
@@ -94,7 +103,18 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('URL')
+    
+    fetch('http://localhost:8080/feed/signup', {
+      method: 'PUT', // 또는 'POST'로 변경
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: authData.email, // 이메일 데이터
+        password: authData.password, // 비밀번호 데이터
+        name: authData.name // 이름 데이터
+      })
+    })
       .then(res => {
         if (res.status === 422) {
           throw new Error("Validation failed. Make sure the email address isn't used yet!");
@@ -106,7 +126,7 @@ class App extends Component {
       })
       .then(resData => {
         this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace('/');
+        this.props.navigate('/'); 
       })
       .catch(err => {
         this.setState({
@@ -116,7 +136,7 @@ class App extends Component {
         });
       });
   };
-
+  
   setAutoLogout = milliseconds => {
     setTimeout(() => {
       this.logoutHandler();
@@ -207,4 +227,10 @@ class App extends Component {
   }
 }
 
-export default App;
+
+const AppWithNavigate = (props) => {
+  const navigate = useNavigate();
+  return <App {...props} navigate={navigate} />;
+};
+
+export default AppWithNavigate;

@@ -21,7 +21,8 @@ class App extends Component {
     token: null,
     userId: null,
     authLoading: false,
-    error: null
+    error: null,
+    formIsValid: false
   };
 
   componentDidMount() {
@@ -58,7 +59,7 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('http://localhost:8080/feed/login', {
+    fetch('http://localhost:8080/auth/login', {
         method: 'POST',
         headers:{
           'Content-Type':'application/json'
@@ -102,17 +103,28 @@ class App extends Component {
 
   signupHandler = (event, authData) => {
     event.preventDefault();
-    this.setState({ authLoading: true });
+
+
+     // formIsValid 변수를 authData에서 가져옵니다.
+  const formIsValid = authData.signupForm && authData.signupForm.formIsValid;
+
+  if (!formIsValid) {
+    console.error("signupForm is invalid or not defined!");
+    return;
+  }
+
+  this.setState({ authLoading: true });
+  console.log("Sending signup request with data:", authData);
     
-    fetch('http://localhost:8080/feed/signup', {
+    fetch('http://localhost:8080/auth/signup', {
       method: 'PUT', // 또는 'POST'로 변경
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        email: authData.email, // 이메일 데이터
-        password: authData.password, // 비밀번호 데이터
-        name: authData.name // 이름 데이터
+        email: authData.signupForm.email.value,
+        password: authData.signupForm.password.value,
+        name: authData.signupForm.name.value
       })
     })
       .then(res => {
@@ -120,15 +132,18 @@ class App extends Component {
           throw new Error("Validation failed. Make sure the email address isn't used yet!");
         }
         if (res.status !== 200 && res.status !== 201) {
+          console.log(authData);
           throw new Error('Creating a user failed!');
         }
         return res.json();
       })
       .then(resData => {
+        console.log("User created successfully:", resData);
         this.setState({ isAuth: false, authLoading: false });
         this.props.navigate('/'); 
       })
       .catch(err => {
+        console.error("Error occurred:", err);
         this.setState({
           isAuth: false,
           authLoading: false,

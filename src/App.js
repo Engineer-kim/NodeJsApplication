@@ -198,14 +198,15 @@ class App extends Component {
               <FeedPage userId={this.state.userId} token={this.state.token} />
             }
           />
-          <Route
+             <Route
             path="/:postId"
-            element={
+            render={props => (
               <SinglePostPage
+                {...props}
                 userId={this.state.userId}
                 token={this.state.token}
               />
-            }
+            )}
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

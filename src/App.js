@@ -104,42 +104,39 @@ class App extends Component {
   };
 
   signupHandler = (event, authData) => {
-    event.preventDefault();
-
-
-     // formIsValid 변수를 authData에서 가져옵니다.
-  const formIsValid = authData.signupForm && authData.signupForm.formIsValid;
-
-  if (!formIsValid) {
-    console.error("signupForm is invalid or not defined!");
-    return;
-  }
-
+  event.preventDefault();
   this.setState({ authLoading: true });
   console.log("Sending signup request with data:", authData);
-    
-    fetch('http://localhost:8080/auth/signup', {
-      method: 'PUT', // 또는 'POST'로 변경
+    const graphqlQuery = {
+      query: `
+            mutation{
+              createUser(userInput: {email: "${authData.signupForm.email.value}" , 
+              name: "${authData.signupForm.name.value}",
+              password: "${authData.signupForm.password.value}"}){
+                _id
+                email
+              }
+        }
+      `
+    }
+    fetch('http://localhost:8080/graphql', {
+      method: 'POST', 
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        email: authData.signupForm.email.value,
-        password: authData.signupForm.password.value,
-        name: authData.signupForm.name.value
-      })
+      body: JSON.stringify(graphqlQuery)
     })
       .then(res => {
-        if (res.status === 422) {
-          throw new Error("Validation failed. Make sure the email address isn't used yet!");
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log(authData);
-          throw new Error('Creating a user failed!');
-        }
         return res.json();
       })
       .then(resData => {
+        if (resData.errors && resData.errors[0].status === 422) {
+          throw new Error("Validation failed. Make sure the email address isn't used yet!");
+        }
+        if(resData.errors){
+          throw new Error('User Creation Fail')
+        }
+
         console.log("User created successfully:", resData);
         this.setState({ isAuth: false, authLoading: false });
         this.props.navigate('/'); 

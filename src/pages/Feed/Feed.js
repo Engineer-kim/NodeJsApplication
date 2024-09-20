@@ -41,7 +41,7 @@ class Feed extends Component {
 
     this.loadPosts();
   }
-
+  
   loadPosts = direction => {
     if (direction) {
       this.setState({ postsLoading: true, posts: [] });
@@ -283,7 +283,6 @@ class Feed extends Component {
         });
       });
   };
-
   statusInputChangeHandler = (input, value) => {
     this.setState({ status: value });
   };

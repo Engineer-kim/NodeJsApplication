@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { useParams } from 'react-router-dom';
+
 import Image from '../../../components/Image/Image';
 import './SinglePost.css';
 import post from '../../../components/Feed/Post/Post';
@@ -17,6 +17,7 @@ class SinglePost extends Component {
   };
   componentDidMount() {
     const postId = this.props.postId; 
+    console.log("postId:>:>>>>>>>>>>>>>>>>>>>>>>>>>", postId)
     const graphqlQuery = {
         query: `query FetchSinglePost($postId: ID!) {
           post(id: $postId) {
@@ -46,6 +47,7 @@ class SinglePost extends Component {
         return res.json();
       })
       .then(resData => {
+        console.log("resData:::::::::::::::::::::::::::::" , resData)
         if (resData.errors) {
           throw new Error('Fetching post failed!');
         }

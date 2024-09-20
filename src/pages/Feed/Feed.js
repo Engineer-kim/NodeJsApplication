@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 
-
 import Post from '../../components/Feed/Post/Post';
 import Button from '../../components/Button/Button';
 import FeedEdit from '../../components/Feed/FeedEdit/FeedEdit';
@@ -9,7 +8,6 @@ import Paginator from '../../components/Paginator/Paginator';
 import Loader from '../../components/Loader/Loader';
 import ErrorHandler from '../../components/ErrorHandler/ErrorHandler';
 import './Feed.css';
-import post from '../../components/Feed/Post/Post';
 
 class Feed extends Component {
   state = {
@@ -22,6 +20,7 @@ class Feed extends Component {
     postsLoading: true,
     editLoading: false
   };
+
   componentDidMount() {
     const graphqlQuery = {
       query: `
@@ -50,8 +49,10 @@ class Feed extends Component {
         this.setState({ status: resData.data.user.status });
       })
       .catch(this.catchError);
-      this.loadPosts();
+
+    this.loadPosts();
   }
+
   loadPosts = direction => {
     if (direction) {
       this.setState({ postsLoading: true, posts: [] });
@@ -87,7 +88,7 @@ class Feed extends Component {
         page: page   //위 그래프큐엘의 변수값에 할당됨
       }
     }
-    fetch('http://localhost:8080/feed/graphql' , 
+    fetch('http://localhost:8080/graphql' , 
     {
       method: 'POST',
       headers: {
@@ -101,7 +102,7 @@ class Feed extends Component {
       })
       .then(resData => {
         if (resData.errors) {
-          throw new Error('Fetching Post failed!');
+          throw new Error('Fetching posts failed!');
         }
         this.setState({
           posts: resData.data.posts.posts.map(post => {
@@ -303,6 +304,7 @@ class Feed extends Component {
         });
       });
   };
+
   statusInputChangeHandler = (input, value) => {
     this.setState({ status: value });
   };
@@ -398,22 +400,19 @@ class Feed extends Component {
               lastPage={Math.ceil(this.state.totalPosts / 2)}
               currentPage={this.state.postPage}
             >
-             {this.state.posts.map(post => {
-                console.log(post); // post 정보를 콘솔에 찍습니다.
-                return (
-                  <Post
-                    key={post._id}
-                    id={post._id}
-                    author={post.creator ? post.creator.name : 'Unknown'}
-                    date={new Date(post.createdAt).toLocaleDateString('en-US')}
-                    title={post.title}
-                    image={post.imageUrl}
-                    content={post.content}
-                    onStartEdit={this.startEditPostHandler.bind(this, post._id)}
-                    onDelete={this.deletePostHandler.bind(this, post._id)}
-                  />
-                );
-              })}
+              {this.state.posts.map(post => (
+                <Post
+                  key={post._id}
+                  id={post._id}
+                  author={post.creator.name}
+                  date={new Date(post.createdAt).toLocaleDateString('en-US')}
+                  title={post.title}
+                  image={post.imageUrl}
+                  content={post.content}
+                  onStartEdit={this.startEditPostHandler.bind(this, post._id)}
+                  onDelete={this.deletePostHandler.bind(this, post._id)}
+                />
+              ))}
             </Paginator>
           )}
         </section>

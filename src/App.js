@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Routes, Route, Navigate, useNavigate} from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate , useParams} from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
 import Backdrop from './components/Backdrop/Backdrop';
@@ -58,7 +58,7 @@ class App extends Component {
 
   loginHandler = (event, authData) => {
     event.preventDefault();
-        const graphqlQuery = {
+    const graphqlQuery = {
       query: `
         query UserLogin($email: String!, $password: String!) {
           login(email: $email, password: $password) {
@@ -74,12 +74,12 @@ class App extends Component {
     }
     this.setState({ authLoading: true });
     fetch('http://localhost:8080/graphql', {
-        method: 'POST',
-        headers:{
-          'Content-Type':'application/json',
-          
-        },
-        body: JSON.stringify(graphqlQuery)
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+
+      },
+      body: JSON.stringify(graphqlQuery)
     })
       .then(res => {
         return res.json();
@@ -117,9 +117,9 @@ class App extends Component {
   };
 
   signupHandler = (event, authData) => {
-  event.preventDefault();
-  this.setState({ authLoading: true });
-  console.log("Sending signup request with data:", authData);
+    event.preventDefault();
+    this.setState({ authLoading: true });
+    console.log("Sending signup request with data:", authData);
     const graphqlQuery = {
       query: `
         mutation CreateNewUser($email: String!, $name: String!, $password: String!) {
@@ -136,7 +136,7 @@ class App extends Component {
       }
     };
     fetch('http://localhost:8080/graphql', {
-      method: 'POST', 
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -149,13 +149,13 @@ class App extends Component {
         if (resData.errors && resData.errors[0].status === 422) {
           throw new Error("Validation failed. Make sure the email address isn't used yet!");
         }
-        if(resData.errors){
+        if (resData.errors) {
           throw new Error('User Creation Fail')
         }
 
         console.log("User created successfully:", resData);
         this.setState({ isAuth: false, authLoading: false });
-        this.props.navigate('/'); 
+        this.props.navigate('/');
       })
       .catch(err => {
         console.error("Error occurred:", err);
@@ -166,7 +166,7 @@ class App extends Component {
         });
       });
   };
-  
+
   setAutoLogout = milliseconds => {
     setTimeout(() => {
       this.logoutHandler();
@@ -211,15 +211,14 @@ class App extends Component {
               <FeedPage userId={this.state.userId} token={this.state.token} />
             }
           />
-             <Route
+          <Route
             path="/:postId"
-            render={props => (
-              <SinglePostPage
-                {...props}
+            element={
+              <SinglePostWithParams
                 userId={this.state.userId}
                 token={this.state.token}
               />
-            )}
+            }
           />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
@@ -257,7 +256,16 @@ class App extends Component {
     );
   }
 }
-
+const SinglePostWithParams = (props) => {
+  const { postId } = useParams(); // URL에서 postId 가져오기
+  return (
+    <SinglePostPage
+      userId={props.userId}
+      token={props.token}
+      postId={postId} // postId 전달
+    />
+  );
+};
 
 const AppWithNavigate = (props) => {
   const navigate = useNavigate();

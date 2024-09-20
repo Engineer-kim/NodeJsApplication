@@ -65,11 +65,11 @@ class Feed extends Component {
       page--;
       this.setState({ postPage: page });
     }
-    const graphqlQuery = {
+    const graphqlQuery = {  //아래의 $page는 Variables에 정의 된 값으로 대치됨
       query: `
-        {
-          posts(page: ${page}){
-            posts{
+         query FetchPosts($page: Int) {
+          posts(page: $page) {
+            posts {
               _id
               title
               content
@@ -84,7 +84,7 @@ class Feed extends Component {
         }
       `,
       variables: {
-        page: page
+        page: page   //위 그래프큐엘의 변수값에 할당됨
       }
     }
     fetch('http://localhost:8080/feed/graphql' , 

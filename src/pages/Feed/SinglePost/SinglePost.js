@@ -51,10 +51,12 @@ class SinglePost extends Component {
         if (resData.errors) {
           throw new Error('Fetching post failed!');
         }
+        const imageUrl = 'http://localhost:8080/' + decodeURIComponent(resData.data.post.imageUrl.replace(/\\/g, '/'));
+        console.log("Constructed Image URL:", imageUrl);
         this.setState({
           title: resData.data.post.title,
           author: resData.data.post.creator.name,
-          image: 'http://localhost:8080/' + resData.data.post.imageUrl,
+          image: imageUrl,
           date: new Date(resData.data.post.createdAt).toLocaleDateString('en-US'),
           content: resData.data.post.content
         });
